@@ -132,8 +132,8 @@ class cars     //main class
         {
 			namedWindow("display_output");
 			imshow("display_output",image_main_result);
-//			waitKey(0);
-			Sleep(1000);
+			waitKey(0);
+//			Sleep(100);
 		}
 	}
 
@@ -146,9 +146,14 @@ class cars     //main class
 	void findcars()                 //main function
 	{
     	int i = 0;
-
+    	cv::Rect maxRect; // 0 sized rect
 		Mat img = storage.clone();
 		Mat temp;                    //for region of interest.If a car is detected(after testing) by one classifier,then it will not be available for other one
+		Mat resize_image_reg_of_interest;
+		vector<Rect> nestedcars;
+		Point center;
+		const static Scalar colors[] =  { CV_RGB(0,0,255),CV_RGB(0,255,0),CV_RGB(255,0,0),CV_RGB(255,255,0),CV_RGB(255,0,255),CV_RGB(0,255,255),CV_RGB(255,255,255),CV_RGB(128,0,0),CV_RGB(0,128,0),CV_RGB(0,0,128),CV_RGB(128,128,128),CV_RGB(0,0,0)};
+		Scalar color = colors[i%8];
 
 		if(img.empty() )
         {
@@ -157,7 +162,7 @@ class cars     //main class
 		int cen_x;
 		int cen_y;
     	vector<Rect> cars;
-    	const static Scalar colors[] =  { CV_RGB(0,0,255),CV_RGB(0,255,0),CV_RGB(255,0,0),CV_RGB(255,255,0),CV_RGB(255,0,255),CV_RGB(0,255,255),CV_RGB(255,255,255),CV_RGB(128,0,0),CV_RGB(0,128,0),CV_RGB(0,0,128),CV_RGB(128,128,128),CV_RGB(0,0,0)};
+
 
     	Mat gray;
 
@@ -169,34 +174,42 @@ class cars     //main class
     	equalizeHist( resize_image, resize_image );
 
 
-//    	cascade.detectMultiScale( resize_image, cars,1.1,2,0,Size(10,10));	//detection using main classifier
-    	cascade.detectMultiScale( resize_image, cars,1.1,2,CV_HAAR_FIND_BIGGEST_OBJECT);
+    	cascade.detectMultiScale( resize_image, cars,1.1,2,0,Size(10,10));	//detection using main classifier
+//    	cascade.detectMultiScale( resize_image, cars,1.1,2,CV_HAAR_FIND_BIGGEST_OBJECT);
 		for( vector<Rect>::const_iterator main = cars.begin(); main != cars.end(); main++, i++ )
     	{
-       		Mat resize_image_reg_of_interest;
-        	vector<Rect> nestedcars;
-        	Point center;
-        	Scalar color = colors[i%8];
+//			for(int i=0;i<main.;i++)
+//				while (main.__normal_iterator())
+			    if (main[i].area() > maxRect.area())
+			        maxRect = main[i];
+    	}
 
 
 			//getting points for bouding a rectangle over the car detected by main
-			int x0 = cvRound(main->x);
-			int y0 = cvRound(main->y);
-			int x1 = cvRound((main->x + main->width-1));
-			int y1 = cvRound((main->y + main->height-1));
+//			int x0 = cvRound(main->x);
+//			int y0 = cvRound(main->y);
+//			int x1 = cvRound((main->x + main->width-1));
+//			int y1 = cvRound((main->y + main->height-1));
+			int x0 = cvRound(maxRect.x);
+			int y0 = cvRound(maxRect.y);
+			int x1 = cvRound((maxRect.x + maxRect.width-1));
+			int y1 = cvRound((maxRect.y + maxRect.height-1));
 
 
 
-        	if( checkcascade.empty() )
-            	continue;
-        	resize_image_reg_of_interest = resize_image(*main);
+//        	if( checkcascade.empty() )
+//            	continue;
+//        	resize_image_reg_of_interest = resize_image(*main);
+        	resize_image_reg_of_interest = resize_image(maxRect);
         	checkcascade.detectMultiScale( resize_image_reg_of_interest, nestedcars,1.1,2,0,Size(30,30));
 
         	for( vector<Rect>::const_iterator sub = nestedcars.begin(); sub != nestedcars.end(); sub++ )      //testing the detected car by main using checkcascade
         	{
-           		center.x = cvRound((main->x + sub->x + sub->width*0.5));        //getting center points for bouding a circle over the car detected by checkcascade
-				cen_x = center.x;
-			   	center.y = cvRound((main->y + sub->y + sub->height*0.5));
+//           		center.x = cvRound((main->x + sub->x + sub->width*0.5));        //getting center points for bouding a circle over the car detected by checkcascade
+        		center.x = cvRound((maxRect.x + sub->x + sub->width*0.5));
+        		cen_x = center.x;
+//			   	center.y = cvRound((main->y + sub->y + sub->height*0.5));
+        		center.y = cvRound((maxRect.y + sub->y + sub->height*0.5));
 				cen_y = center.y;
 				if(cen_x>(x0+15) && cen_x<(x1-15) && cen_y>(y0+15) && cen_y<(y1-15))         //if centre of bounding circle is inside the rectangle boundary over a threshold the the car is certified
 				{
@@ -218,7 +231,7 @@ class cars     //main class
 				}
 			}
 
-		}
+//		}
 
 
 	if(image_main_result.empty() )
