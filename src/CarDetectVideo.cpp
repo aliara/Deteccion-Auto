@@ -145,7 +145,7 @@ class cars     //main class
 
 	void findcars()                 //main function
 	{
-    	int i = 0;
+    	int i = 0, detecciones=0;
     	Rect maxRect; // 0 sized rect
 		Mat img2 = storage.clone();
 		Mat cropped;
@@ -238,13 +238,14 @@ class cars     //main class
 
 				}
 			}
-
-        	string text = "Estadsticas";
+        	char numstr[21];
+        	string leyenda = "Detecciones: ";
+        	string text = leyenda + itoa (detecciones,numstr,10);
         	int fontFace = FONT_HERSHEY_SCRIPT_SIMPLEX;
         	double fontScale = 1;
-        	int thickness = 3;
-        	Point textOrg(120, 120);
-        	putText(image_main_result, text, textOrg, fontFace, fontScale, Scalar::all(128), thickness,8);
+        	int thickness = 2;
+        	Point textOrg(120, 140);
+        	putText(image_main_result, text, textOrg, fontFace, fontScale, Scalar::all(200), thickness,8);
 
 //		}
 
