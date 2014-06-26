@@ -146,8 +146,14 @@ class cars     //main class
 	void findcars()                 //main function
 	{
     	int i = 0;
-    	cv::Rect maxRect; // 0 sized rect
-		Mat img = storage.clone();
+    	Rect maxRect; // 0 sized rect
+		Mat img2 = storage.clone();
+		Mat cropped;
+		Rect myROI(0, 0, 200, 70);
+		Mat croppedRef(img2,myROI);
+		Mat img = img2.clone();
+		croppedRef.copyTo(img);
+		imshow("Autos Capturados",img);
 		Mat temp;                    //for region of interest.If a car is detected(after testing) by one classifier,then it will not be available for other one
 		Mat resize_image_reg_of_interest;
 		vector<Rect> nestedcars;
@@ -226,10 +232,19 @@ class cars     //main class
 					temp = storage(region_of_interest);
 					temp = Scalar(255,255,255);
 
+
+
 					num = num+1;     //num if number of cars detected
 
 				}
 			}
+
+        	string text = "Estadsticas";
+        	int fontFace = FONT_HERSHEY_SCRIPT_SIMPLEX;
+        	double fontScale = 1;
+        	int thickness = 3;
+        	Point textOrg(120, 120);
+        	putText(image_main_result, text, textOrg, fontFace, fontScale, Scalar::all(128), thickness,8);
 
 //		}
 
